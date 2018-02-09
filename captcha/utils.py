@@ -17,8 +17,6 @@ def calc_distance(color1: list or tuple, color2: list or tuple) -> float:
 
 
 def calc_center(cluster: list) -> tuple:
-    for c in cluster:
-        assert len(c) == 3
     return tuple([int(sum(c) / len(cluster)) for c in zip(*cluster)])
 
 
@@ -29,8 +27,6 @@ def merge_seeds(seeds: list):
     :return: new seed set
     """
     seeds = deepcopy(seeds)
-    for s in seeds:
-        assert len(s) == 3
     min_dist, min_pair = DIST_INF, None
     for i in range(len(seeds)):
         for j in range(i + 1, len(seeds)):
@@ -46,13 +42,23 @@ def merge_seeds(seeds: list):
     return seeds
 
 
+def pick_color(color: tuple, seeds: list) -> tuple:
+    min_dist, chosen_seed = DIST_INF, None
+    for s in seeds:
+        distance = calc_distance(color, s)
+        if distance < min_dist:
+            min_dist = distance
+            chosen_seed = s
+    return tuple(deepcopy(chosen_seed))
+
+
 def split_image(image: Image.Image):
     """
     split digits using k-means in RGB color space
     :param image: PIL.Image.Image instance
     :return:
     """
-    image_data = image.getdata()
+    image_data = list(image.getdata())
     colors = list(set(image_data))
     seeds = random.choices(colors, k=int(len(colors) * 0.02) if len(colors) >= 100 else 10)
     # randomly choose 2% of the colors as seed (at least 10)
@@ -71,9 +77,8 @@ def split_image(image: Image.Image):
                         seed_index = i
                 clusters[seed_index].append(c)
             seeds = [calc_center(cluster) for cluster in clusters if cluster]
-            print(len(seeds))
-        print('stable, merging')
         seeds = merge_seeds(seeds)
-        for s in seeds:
-            assert len(s) == 3
-        print(seeds)
+    new_image_data = [pick_color(d, seeds) for d in image_data]
+    new_image = Image.new('RGB', (123, 40), 255)
+    new_image.putdata(new_image_data)
+    new_image.save('out.bmp')
