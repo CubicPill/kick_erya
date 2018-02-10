@@ -2,6 +2,7 @@ from PIL import Image
 import random
 import math
 from copy import deepcopy
+import hashlib
 
 DIST_INF = 442  # distance from (0,0,0) to (255,255,255), rounded up
 
@@ -82,3 +83,5 @@ def split_image(image: Image.Image):
     new_image = Image.new('RGB', (123, 40), 255)
     new_image.putdata(new_image_data)
     new_image.save('out.bmp')
+
+

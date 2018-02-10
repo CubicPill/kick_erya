@@ -7,8 +7,10 @@ LOGIN_URL = 'http://passport2.chaoxing.com/login'
 def erya_login(username, password):
     session = requests.session()
     image = Image.frombytes(mode='RGB', size=(123, 40), data=session.get(LOGIN_URL).content)
+    # captcha recognition
+    return session.cookies.get_dict()
 
 
 class EryaSession:
-    def __init__(self):
+    def __init__(self, cookies):
         pass
