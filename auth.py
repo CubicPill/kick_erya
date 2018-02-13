@@ -34,17 +34,4 @@ def erya_login(username, password, captcha_mode: int = 0):
         raise RuntimeError('Login failed')
 
 
-class EryaSession:
-    def __init__(self, cookies: dict):
-        self.session = requests.session()
-        for _k, _v in cookies.items():
-            self.session.cookies.set(name=_k, value=_v)
 
-    def get_course_list(self):
-        pass
-
-    def get_course_checkpoint_list(self):
-        pass
-
-    def send_video_progress_update(self):
-        pass
