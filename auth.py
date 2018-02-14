@@ -1,12 +1,13 @@
 import requests
 from PIL import Image
 from io import BytesIO
+from erya import EryaSession
 
 LOGIN_URL = 'http://passport2.chaoxing.com/login'
 CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code'
 
 
-def erya_login(username, password, captcha_mode: int = 0):
+def erya_login(username, password, captcha_mode: int = 0) -> dict:
     session = requests.session()
     captcha = ''
     captcha_image_content = requests.get(CAPTCHA_URL).content
@@ -34,4 +35,7 @@ def erya_login(username, password, captcha_mode: int = 0):
         raise RuntimeError('Login failed')
 
 
-
+class EryaAuth(EryaSession):
+    def __init__(self, username, password):
+        cookies = erya_login(username, password)
+        EryaSession.__init__(cookies)
