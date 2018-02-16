@@ -43,6 +43,8 @@ class EryaSession:
             'isdrag': '3',
             'enc': get_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
+        url = ''
+        self.session.post(url, data=data)
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
                         t: int = int(time.time())):
