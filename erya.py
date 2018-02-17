@@ -44,7 +44,12 @@ class EryaSession:
             'enc': get_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
         url = ''
+
         self.session.post(url, data=data)
+
+    def request_checkpoint(self, mid):
+        url = 'https://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(mid=mid)
+        return self.session.get(url).json()
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
                         t: int = int(time.time())):

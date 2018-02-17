@@ -38,4 +38,4 @@ def erya_login(username, password, captcha_mode: int = 0) -> dict:
 class EryaAuth(EryaSession):
     def __init__(self, username, password):
         cookies = erya_login(username, password)
-        EryaSession.__init__(cookies)
+        EryaSession.__init__(self,cookies)
