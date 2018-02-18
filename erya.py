@@ -1,6 +1,6 @@
 import requests
 import time
-from utils import get_enc
+from utils import get_enc, parse_course_id_list
 from bs4 import BeautifulSoup
 
 
@@ -17,11 +17,7 @@ class EryaSession:
             'enc': enc
         }
         response = self.session.get('https://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data)
-        soup = BeautifulSoup(response.content, 'html5lib')
-        chapter_urls = soup.select('div.leveltwo > h3 > span > a')
-        chapter_id_list = list()
-        for a in chapter_urls:
-            chapter_id_list.append(a.href)
+        chapter_id_list = parse_course_id_list(response)
         return chapter_id_list
 
     def get_video(self):

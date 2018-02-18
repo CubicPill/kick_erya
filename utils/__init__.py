@@ -1,5 +1,5 @@
 import hashlib
-
+from .parser import *
 SALT = 'd_yHJ!$pdA~5'
 
 
