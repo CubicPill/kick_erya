@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import json
 
 
 def parse_course_id_list(response):
@@ -8,3 +9,7 @@ def parse_course_id_list(response):
     for a in chapter_urls:
         chapter_id_list.append(a.href)
     return chapter_id_list
+
+
+def parse_checkpoint_info(data: dict):
+    pass
