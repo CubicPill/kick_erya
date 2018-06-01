@@ -3,10 +3,28 @@ import time
 from utils import get_enc, parse_course_id_list
 from bs4 import BeautifulSoup
 
+HEADERS = {
+    'Connection': 'keep-alive',
+
+    'Cache-Control': 'max-age=0',
+
+    'Upgrade-Insecure-Requests': '1',
+
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+
+    'DNT': '1',
+
+    'Accept-Encoding': 'gzip, deflate, br',
+
+    'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
+}
+
 
 class EryaSession:
     def __init__(self, cookies: dict):
-        self.session: requests.session = requests.session()
+        self.session = requests.session()
         for _k, _v in cookies.items():
             self.session.cookies.set(name=_k, value=_v)
 
@@ -16,8 +34,8 @@ class EryaSession:
             'clazzid': class_id,
             'enc': enc
         }
-        response = self.session.get('https://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data)
-        chapter_id_list = parse_course_id_list(response)
+        response = self.session.get('http://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data, headers=HEADERS)
+        chapter_id_list = parse_course_id_list(response.text)
         return chapter_id_list
 
     def get_video(self):

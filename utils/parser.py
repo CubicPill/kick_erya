@@ -1,14 +1,13 @@
 from bs4 import BeautifulSoup
 import json
+import re
+
+PET = re.compile(
+    '/moocAnalysis/nodeStatisticByUser?flag=1&courseId=(\d+)&classId=(\d+)&chapterId=(\d+)&chapterName=(.+)&totalStudent=0&compeletionNum=0')
 
 
-def parse_course_id_list(response):
-    soup = BeautifulSoup(response.content, 'html5lib')
-    chapter_urls = soup.select('div.leveltwo > h3 > span > a')
-    chapter_id_list = list()
-    for a in chapter_urls:
-        chapter_id_list.append(a.href)
-    return chapter_id_list
+def parse_course_id_list(response_text):
+    pass
 
 
 def parse_checkpoint_info(data: dict):

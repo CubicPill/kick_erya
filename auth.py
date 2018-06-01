@@ -13,19 +13,22 @@ CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code?{ts}'
 def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dict:
     session = requests.session()
     session.get(LOGIN_URL.format(fid=fid))
-    captcha_image_content = session.get(CAPTCHA_URL.format(ts=int(time.time() * 1000))).content
-    captcha_image = Image.open(BytesIO(captcha_image_content))
-    if captcha_mode == 1:
-        # auto recognition
+    captcha = ''
+    while not captcha:
+        captcha_image_content = session.get(CAPTCHA_URL.format(ts=int(time.time() * 1000))).content
+        captcha_image = Image.open(BytesIO(captcha_image_content))
+        if captcha_mode == 1:
+            # auto recognition
 
-        # captcha recognition
-        raise NotImplementedError
-    elif captcha_mode == 0:
-        # enter by user
-        captcha_image.show()
-        captcha = input('Code: ')
-    else:
-        raise ValueError('Unrecognized captcha mode %d' % captcha_mode)
+            # captcha recognition
+            raise NotImplementedError
+        elif captcha_mode == 0:
+            # enter by user
+
+            captcha_image.show()
+            captcha = input('Enter code (Press enter to get a new code): ')
+        else:
+            raise ValueError('Unrecognized captcha mode %d' % captcha_mode)
     data = {
         'uname': username,
         'password': password,
@@ -47,9 +50,10 @@ def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dic
         'http://passport2.chaoxing.com/login?refer=http%3A%2F%2Fi.mooc.chaoxing.com%2Fspace%2Findex.shtml', data=data,
         allow_redirects=False)
     if login_resp.status_code == 302:
-        # TODO: login failure information
+        session.get('http://i.mooc.chaoxing.com/space/index.shtml')
         return session.cookies.get_dict()
     else:
+        # TODO: login failure information
         raise RuntimeError('Login failed')
 
 
@@ -57,5 +61,3 @@ class EryaAuth(EryaSession):
     def __init__(self, username, password):
         cookies = erya_login(username, password)
         EryaSession.__init__(self, cookies)
-
-
