@@ -1,5 +1,6 @@
 import hashlib
 from .parser import *
+
 SALT = 'd_yHJ!$pdA~5'
 
 HEADERS = {
@@ -20,22 +21,25 @@ HEADERS = {
     'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
 }
 
-def get_enc(clazzId: int, userid: int, jobid: int, objectId: str, playingTime: int, duration: int) -> str:
+
+def get_enc(clazzId, user_id, job_id, objectId, playingTime, duration) -> str:
     """
     get the enc field in update requests
     restored from decompiling the flash player
     :rtype: str
     :param clazzId:
-    :param userid:
-    :param jobid:
+    :param user_id:
+    :param job_id:
     :param objectId:
     :param playingTime:
     :param duration:
     :return: enc string
     """
+    clazzId, user_id, job_id, playingTime, duration = \
+        list(map(int, [clazzId, user_id, job_id, playingTime, duration]))
     _string = '[{cid}][{uid}][{jid}][{oid}][{pt}][{salt}][{d}][{ct}]' \
-        .format(cid=clazzId, uid=userid, jid=jobid, oid=objectId, pt=playingTime * 1000,
+        .format(cid=clazzId, uid=user_id, jid=job_id, oid=objectId, pt=playingTime * 1000,
                 d=duration * 1000, ct='0_%d' % duration, salt=SALT)
     md5 = hashlib.md5()
-    md5.update(_string.encode('utf-8'))
+    md5.update(_string.encode())
     return md5.hexdigest()

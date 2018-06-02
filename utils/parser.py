@@ -14,7 +14,7 @@ CHAPTER_PATTERN = re.compile(
     '&compeletionNum=0'
 )
 VIDEO_DATA_PATTERN = re.compile('mArg = ({.+});')
-__all__ = ['parse_chapter_data', 'parse_params', 'parse_video_data', 'parse_chapter_list', 'parse_checkpoint_info']
+__all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_info']
 
 
 def parse_params(url):
@@ -31,7 +31,7 @@ def parse_chapter_list(response_text):
             in zip(matches, status_list)]
 
 
-def parse_chapter_data(response_text):
+def parse_chapter_tabs(response_text):
     soup = BeautifulSoup(response_text, 'html5lib')
 
     ret = {
@@ -46,7 +46,7 @@ def parse_chapter_data(response_text):
     return ret
 
 
-def parse_video_data(response_text):
+def parse_chapter_detail(response_text):
     match = VIDEO_DATA_PATTERN.search(response_text)
     return json.loads(match.group(1))
 

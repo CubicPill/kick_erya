@@ -33,7 +33,7 @@ class EryaSession:
         chapter_list = parse_chapter_list(response.text)
         return chapter_list
 
-    def get_chapter_data(self, course_id, class_id, chapter_id):
+    def get_chapter_tabs(self, course_id, class_id, chapter_id):
         data = {
             'courseId': course_id,
             'clazzid': class_id,
@@ -41,9 +41,9 @@ class EryaSession:
         }
         response = self.session.post('http://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data,
                                      headers=HEADERS)
-        return parse_chapter_data(response.text)
+        return parse_chapter_tabs(response.text)
 
-    def get_video_data(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
+    def get_chapter_detail(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
         url = 'http://mooc1-1.chaoxing.com/knowledge/cards'
         params = {
             'clazzid': class_id,
@@ -53,10 +53,20 @@ class EryaSession:
             'v': ERYA_V + '-1'  # currently is '20160407-1'
         }
         response = self.session.get(url, params=params, headers=HEADERS)
-        return parse_video_data(response.text)
+        return parse_chapter_detail(response.text)
 
-    def request_log(self, duration: int, user_id: int, job_id: int, object_id: str, class_id: int, playing_time: int):
-        data = {
+    def get_ananas_data(self, object_id, school_id):
+        url = 'http://mooc1-1.chaoxing.com/ananas/status/{}'.format(object_id)
+        params = {
+            'k': school_id,
+            '_dc': int(time.time() * 1000)
+        }
+        return self.session.get(url, params=params, headers=HEADERS).json()
+
+    def request_log(self, dtoken, duration, user_id, job_id, object_id, class_id, playing_time, chapter_id):
+        duration, user_id, job_id, class_id, playing_time, chapter_id = \
+            list(map(int, [duration, user_id, job_id, class_id, playing_time, chapter_id]))
+        params = {
             'dtype': 'Video',
             'duration': duration,
             'userid': user_id,
@@ -64,20 +74,21 @@ class EryaSession:
             'jobid': job_id,
             'objectId': object_id,
             'clipTime': '0_%d' % duration,
-            'otherInfo': '',
+            'otherInfo': 'nodeId_{}'.format(chapter_id),
             'clazzId': class_id,
             'view': 'pc',
             'playingTime': playing_time,
             'isdrag': '3',
             'enc': get_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
-        url = ''
+        url = 'http://mooc1-1.chaoxing.com/multimedia/log/{}'.format(dtoken)
 
-        self.session.post(url, data=data)
+        return self.session.get(url, params=params, headers=HEADERS).json()
 
     def request_checkpoint(self, mid):
-        url = 'https://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(mid=mid)
-        return self.session.get(url).json()
+        url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
+            mid=mid)
+        return self.session.get(url,headers=HEADERS).json()
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
                         t: int = int(time.time())):
@@ -97,4 +108,4 @@ class EryaSession:
             'referer': referer,
             't': t
         }
-        self.session.get('https://passport2.chaoxing.com/api/monitor', data=data)
+        self.session.get('http://passport2.chaoxing.com/api/monitor', data=data)
