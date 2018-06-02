@@ -1,25 +1,10 @@
 import requests
 import time
-from utils import get_enc, parse_chapter_list, parse_video_data
+from utils import get_enc
+from utils.parser import *
 from bs4 import BeautifulSoup
 
-HEADERS = {
-    'Connection': 'keep-alive',
-
-    'Cache-Control': 'max-age=0',
-
-    'Upgrade-Insecure-Requests': '1',
-
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
-
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-
-    'DNT': '1',
-
-    'Accept-Encoding': 'gzip, deflate, br',
-
-    'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
-}
+from utils import HEADERS
 
 ERYA_V = '20160407'
 
@@ -48,12 +33,22 @@ class EryaSession:
         chapter_list = parse_chapter_list(response.text)
         return chapter_list
 
+    def get_chapter_data(self, course_id, class_id, chapter_id):
+        data = {
+            'courseId': course_id,
+            'clazzid': class_id,
+            'chapterId': chapter_id
+        }
+        response = self.session.post('http://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data,
+                                     headers=HEADERS)
+        return parse_chapter_data(response.text)
+
     def get_video_data(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
         url = 'http://mooc1-1.chaoxing.com/knowledge/cards'
         params = {
             'clazzid': class_id,
             'courseid': course_id,
-            'knowlwdgeid': chapter_id,
+            'knowledgeid': chapter_id,
             'num': num,
             'v': ERYA_V + '-1'  # currently is '20160407-1'
         }

@@ -3,11 +3,13 @@ from PIL import Image
 from io import BytesIO
 from erya import EryaSession
 import time
+from utils import HEADERS
 
 FID = 864
 
 LOGIN_URL = 'http://passport2.chaoxing.com/login?fid={fid}&refer=http://i.mooc.chaoxing.com/space/index.shtml'
 CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code?{ts}'
+ERYA_S = 'a7b6c438cbba8ac6bdd24a7c60844b93'  # copied from capture, what is that?
 
 
 def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dict:
@@ -48,9 +50,11 @@ def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dic
     }
     login_resp = session.post(
         'http://passport2.chaoxing.com/login?refer=http%3A%2F%2Fi.mooc.chaoxing.com%2Fspace%2Findex.shtml', data=data,
-        allow_redirects=False)
+        allow_redirects=False, headers=HEADERS)
     if login_resp.status_code == 302:
-        session.get('http://i.mooc.chaoxing.com/space/index.shtml')
+        session.get('http://i.mooc.chaoxing.com/space/index.shtml', headers=HEADERS)
+        session.get('http://www.fanya.chaoxing.com/passport/allHead.shtml', headers=HEADERS)
+        session.get('http://passport2.chaoxing.com/mooc.jsp?v=0&s={}'.format(ERYA_S), headers=HEADERS)
         return session.cookies.get_dict()
     else:
         # TODO: login failure information
