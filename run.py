@@ -2,6 +2,7 @@ import json
 from auth import EryaAuth
 from utils.parser import parse_params
 import time
+from threading import Timer
 
 
 def main():
@@ -35,6 +36,8 @@ def main():
             ananas_data = esession.get_ananas_data(object_id, school_id)
             duration = ananas_data['duration']
             dtoken = ananas_data['dtoken']
+            checkpoint_data = esession.get_checkpoint_data(mid)
+
             current_time = 0
 
             while current_time < duration:

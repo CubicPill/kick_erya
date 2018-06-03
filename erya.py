@@ -85,7 +85,7 @@ class EryaSession:
 
         return self.session.get(url, params=params, headers=HEADERS).json()
 
-    def request_checkpoint(self, mid):
+    def get_checkpoint_data(self, mid):
         url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
             mid=mid)
         return self.session.get(url,headers=HEADERS).json()
