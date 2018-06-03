@@ -14,16 +14,11 @@ CHAPTER_PATTERN = re.compile(
     '&compeletionNum=0'
 )
 VIDEO_DATA_PATTERN = re.compile('mArg = ({.+});')
-__all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_info',
-           'parse_checkpoint_data']
+__all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_data']
 
 
 def parse_params(url):
     return dict(parse_qsl(urlsplit(url).query))
-
-
-def parse_checkpoint_data(data: dict):
-    pass
 
 
 def parse_chapter_list(response_text):
@@ -56,7 +51,7 @@ def parse_chapter_detail(response_text):
     return json.loads(match.group(1))
 
 
-def parse_checkpoint_info(data: dict):
+def parse_checkpoint_data(data: dict):
     question_data = data[0]['datas'][0]
     answers = list()
     for option in question_data['options']:

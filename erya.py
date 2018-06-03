@@ -1,10 +1,8 @@
 import requests
 import time
-from utils import get_enc
+from utils import get_enc, HEADERS
 from utils.parser import *
 from bs4 import BeautifulSoup
-
-from utils import HEADERS
 
 ERYA_V = '20160407'
 
@@ -14,6 +12,7 @@ class EryaSession:
         self.session = requests.session()
         for _k, _v in cookies.items():
             self.session.cookies.set(name=_k, value=_v)
+        self.session.headers.update(HEADERS)
 
     def get_course_chapter_list(self, course_id, class_id, enc):
         """
@@ -63,6 +62,11 @@ class EryaSession:
         }
         return self.session.get(url, params=params, headers=HEADERS).json()
 
+    def get_checkpoint_data(self, mid):
+        url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
+            mid=mid)
+        return parse_checkpoint_data(self.session.get(url, headers=HEADERS).json())
+
     def request_log(self, dtoken, duration, user_id, job_id, object_id, class_id, playing_time, chapter_id):
         duration, user_id, job_id, class_id, playing_time, chapter_id = \
             list(map(int, [duration, user_id, job_id, class_id, playing_time, chapter_id]))
@@ -85,10 +89,15 @@ class EryaSession:
 
         return self.session.get(url, params=params, headers=HEADERS).json()
 
-    def get_checkpoint_data(self, mid):
-        url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
-            mid=mid)
-        return self.session.get(url,headers=HEADERS).json()
+    def answer_checkpoint(self, resource_id, answers: list):
+        resource_id = int(resource_id)
+        url = 'https://mooc1-1.chaoxing.com/richvideo/qv'
+        params = {
+            'resourceid': resource_id,
+            'answer': "'" + ''.join(answers) + "'"
+        }
+        # {"resourceId":655244,"isRight":true,"answer":"A"}
+        return self.session.get(url, params=params, headers=HEADERS).json()
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
                         t: int = int(time.time())):
