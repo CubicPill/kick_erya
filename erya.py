@@ -10,8 +10,7 @@ ERYA_V = '20160407'
 class EryaSession:
     def __init__(self, cookies: dict):
         self.session = requests.session()
-        for _k, _v in cookies.items():
-            self.session.cookies.set(name=_k, value=_v)
+        self.session.cookies.update(cookies)
         self.session.headers.update(HEADERS)
 
     def get_course_chapter_list(self, course_id, class_id, enc):

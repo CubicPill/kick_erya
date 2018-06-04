@@ -20,9 +20,11 @@ def main():
             continue
         print('Entering chapter {}: {}'.format(chapter_id, name))
         chapter_tab = esession.get_chapter_tabs(course_id, class_id, chapter_id)
+        print(chapter_tab)
         chapter_detail = esession.get_chapter_detail(class_id, course_id, chapter_id, num=chapter_tab['video'])
         attachment_data = chapter_detail['attachments'][0]
-        print(attachment_data)
+        # print(attachment_data)
+        print(chapter_detail)
         if attachment_data['isPassed']:
             print('Video already passed')
         else:
@@ -36,8 +38,9 @@ def main():
             ananas_data = esession.get_ananas_data(object_id, school_id)
             duration = ananas_data['duration']
             dtoken = ananas_data['dtoken']
-            checkpoint_data = esession.get_checkpoint_data(mid)
-
+            resource_id, start_time, answers = esession.get_checkpoint_data(mid)
+            timer = Timer(start_time, esession.answer_checkpoint, [resource_id, answers])
+            timer.start()
             current_time = 0
 
             while current_time < duration:
