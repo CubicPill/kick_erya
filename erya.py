@@ -2,7 +2,6 @@ import requests
 import time
 from utils import get_enc, HEADERS
 from utils.parser import *
-from bs4 import BeautifulSoup
 
 ERYA_V = '20160407'
 
@@ -41,7 +40,7 @@ class EryaSession:
                                      headers=HEADERS)
         return parse_chapter_tabs(response.text)
 
-    def get_chapter_detail(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
+    def get_card_detail(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
         url = 'http://mooc1-1.chaoxing.com/knowledge/cards'
         params = {
             'clazzid': class_id,
@@ -65,6 +64,32 @@ class EryaSession:
         url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
             mid=mid)
         return parse_checkpoint_data(self.session.get(url, headers=HEADERS).json())
+
+    def get_utenc(self, chapter_id, course_id, class_id, enc):
+        params = {
+            'chapterId': chapter_id,
+            'courseId': course_id,
+            'clazzid': class_id,
+            'enc': enc
+        }
+
+    def get_quiz_data(self, work_id, job_id, chapter_id, class_id, enc, utenc, course_id):
+        params = {
+            'api': 1,
+            'workId': work_id,
+            'jobid': job_id,
+            'needRedirect': True,
+            'knowledgeid': chapter_id,
+            'ut': 's',
+            'clazzId': class_id,
+            'type': '',
+            'enc': enc,
+            'utenc': utenc,
+            'courseid': course_id,
+        }
+        url = 'https://mooc1-1.chaoxing.com/api/work'
+        response = self.session.get(url, params=params)
+        return parse_quiz_data(response.text)
 
     def request_log(self, dtoken, duration, user_id, job_id, object_id, class_id, playing_time, chapter_id):
         duration, user_id, job_id, class_id, playing_time, chapter_id = \

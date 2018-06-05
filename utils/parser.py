@@ -13,12 +13,19 @@ CHAPTER_PATTERN = re.compile(
     '&totalStudent=0'
     '&compeletionNum=0'
 )
-VIDEO_DATA_PATTERN = re.compile('mArg = ({.+});')
-__all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_data']
+CARD_DATA_PATTERN = re.compile('mArg = ({.+});')
+UTENC_PATTERN = re.compile('var utEnc="([0-9a-z]+)";')
+__all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_data',
+           'parse_quiz_data']
 
 
 def parse_params(url):
     return dict(parse_qsl(urlsplit(url).query))
+
+
+def parse_utenc(response_text):
+    match = UTENC_PATTERN.search(response_text)
+    return match.group(1)
 
 
 def parse_chapter_list(response_text):
@@ -47,7 +54,7 @@ def parse_chapter_tabs(response_text):
 
 
 def parse_chapter_detail(response_text):
-    match = VIDEO_DATA_PATTERN.search(response_text)
+    match = CARD_DATA_PATTERN.search(response_text)
     return json.loads(match.group(1))
 
 
@@ -58,3 +65,8 @@ def parse_checkpoint_data(data: dict):
         if option['isRight']:
             answers.append(option['name'])
     return question_data['resourceId'], question_data['startTime'], answers
+
+
+def parse_quiz_data(response_text):
+    soup = BeautifulSoup(response_text, 'html5lib')
+    return response_text
