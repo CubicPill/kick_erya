@@ -1,6 +1,6 @@
 import requests
 import time
-from utils import get_enc, HEADERS
+from utils import get_log_enc, HEADERS
 from utils.parser import *
 
 ERYA_V = '20160407'
@@ -11,6 +11,10 @@ class EryaSession:
         self.session = requests.session()
         self.session.cookies.update(cookies)
         self.session.headers.update(HEADERS)
+
+    @property
+    def cookies(self):
+        return self.session.cookies.get_dict()
 
     def get_course_chapter_list(self, course_id, class_id, enc):
         """
@@ -107,7 +111,7 @@ class EryaSession:
             'view': 'pc',
             'playingTime': playing_time,
             'isdrag': '3',
-            'enc': get_enc(class_id, user_id, job_id, object_id, playing_time, duration)
+            'enc': get_log_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
         url = 'http://mooc1-1.chaoxing.com/multimedia/log/{}'.format(dtoken)
 
@@ -120,7 +124,6 @@ class EryaSession:
             'resourceid': resource_id,
             'answer': "'" + ''.join(answers) + "'"
         }
-        # {"resourceId":655244,"isRight":true,"answer":"A"}
         return self.session.get(url, params=params, headers=HEADERS).json()
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',

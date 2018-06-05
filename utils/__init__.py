@@ -22,9 +22,9 @@ HEADERS = {
 }
 
 
-def get_enc(clazzId, user_id, job_id, objectId, playingTime, duration) -> str:
+def get_log_enc(clazzId, user_id, job_id, objectId, playingTime, duration) -> str:
     """
-    get the enc field in update requests
+    get the enc field in log requests
     restored from decompiling the flash player
     :rtype: str
     :param clazzId:
@@ -43,3 +43,7 @@ def get_enc(clazzId, user_id, job_id, objectId, playingTime, duration) -> str:
     md5 = hashlib.md5()
     md5.update(_string.encode())
     return md5.hexdigest()
+
+
+def get_quiz_enc():
+    pass

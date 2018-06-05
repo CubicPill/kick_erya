@@ -12,6 +12,15 @@ CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code?{ts}'
 ERYA_S = 'a7b6c438cbba8ac6bdd24a7c60844b93'  # copied from capture, what is that?
 
 
+def validate_cookies(cookies: dict):
+    session = requests.session()
+    session.cookies.update(cookies)
+    session.headers.update(HEADERS)
+    if session.get('http://i.mooc.chaoxing.com/space/index.shtml', allow_redirects=False).status_code == 200:
+        return True
+    return False
+
+
 def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dict:
     session = requests.session()
     session.get(LOGIN_URL.format(fid=fid))
@@ -52,6 +61,7 @@ def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dic
         'http://passport2.chaoxing.com/login?refer=http%3A%2F%2Fi.mooc.chaoxing.com%2Fspace%2Findex.shtml', data=data,
         allow_redirects=False, headers=HEADERS)
     if login_resp.status_code == 302:
+        # set cookies
         session.get('http://i.mooc.chaoxing.com/space/index.shtml', headers=HEADERS)
         session.get('http://www.fanya.chaoxing.com/passport/allHead.shtml', headers=HEADERS)
         session.get('http://passport2.chaoxing.com/mooc.jsp?v=0&s={}'.format(ERYA_S), headers=HEADERS)

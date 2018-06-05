@@ -1,14 +1,27 @@
 import json
-from auth import EryaAuth
+from auth import EryaAuth, validate_cookies
 from utils.parser import parse_params
 import time
 from threading import Timer
+import os
+from erya import EryaSession
 
 
 def main():
     with open('config.json') as f:
         config = json.load(f)
-    esession = EryaAuth(username=config['username'], password=config['password'])
+    if os.path.isfile('cookies.json'):
+        with open('cookies.json') as f:
+            cookies = json.load(f)
+        if validate_cookies(cookies):
+            esession = EryaSession(cookies)
+        else:
+            print('Cookies invalid')
+            esession = EryaAuth(username=config['username'], password=config['password'])
+    else:
+        esession = EryaAuth(username=config['username'], password=config['password'])
+    with open('cookies.json', 'w') as f:
+        json.dump(esession.cookies, f)
     params = parse_params(config['init_url'])
     chapter_list = esession.get_course_chapter_list(params['courseId'], params['clazzid'], params['enc'])
     with open('chapters.json', 'w') as f:
@@ -21,7 +34,7 @@ def main():
         chapter_tab = esession.get_chapter_tabs(course_id, class_id, chapter_id)
         card_detail_video = esession.get_card_detail(class_id, course_id, chapter_id, num=chapter_tab['video'])
         attachment_data_video = card_detail_video['attachments'][0]
-        if attachment_data_video['isPassed']:
+        if attachment_data_video.get('isPassed'):
             print('Video already passed')
         else:
             defaults = card_detail_video['defaults']
@@ -34,18 +47,23 @@ def main():
             ananas_data = esession.get_ananas_data(object_id, school_id)
             duration = ananas_data['duration']
             dtoken = ananas_data['dtoken']
-            resource_id, start_time, answers = esession.get_checkpoint_data(mid)
-            # timer = Timer(start_time, esession.answer_checkpoint, [resource_id, answers])
-            # timer.start()
-            # current_time = 0
-            #
-            # while current_time < duration:
-            #     esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
-            #     print('Video at: {} seconds'.format(current_time))
-            #     time.sleep(interval)
-            #     current_time += interval
-            # esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
-            # print('Done playing video')
+            resource_id, checkpoint_time, answers = esession.get_checkpoint_data(mid)
+
+            timer = Timer(checkpoint_time, lambda: print('Checkpoint answered'
+                                                         if esession.answer_checkpoint(resource_id, answers)['isRight']
+                                                         else 'Error handling checkpoint'))
+            timer.start()
+            current_time = 0
+            print('Video length: {} seconds'.format(duration))
+
+            while current_time < duration:
+                esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
+                print('Video at: {} seconds'.format(current_time))
+                time.sleep(interval)
+                current_time += interval
+            esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
+            print('Done playing video')
+            exit(1)
         # do quiz
         utenc = esession.get_utenc(chapter_id, course_id, class_id, params['enc'])
         card_detail_quiz = esession.get_card_detail(class_id, course_id, chapter_id, num=chapter_tab['quiz'])
@@ -57,6 +75,7 @@ def main():
         with open('test.html', 'w', encoding='UTF-8') as f:
             f.write(quiz_data)
         exit(0)
+
 
 if __name__ == '__main__':
     main()
