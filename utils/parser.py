@@ -50,11 +50,18 @@ def parse_chapter_tabs(response_text):
             ret['video'] = i
         elif span['title'] == '章节测验':
             ret['quiz'] = i
+    try:
+        assert -1 not in list(ret.values())
+    except AssertionError as e:
+        print(response_text)
+        raise e
     return ret
 
 
 def parse_chapter_detail(response_text):
     match = CARD_DATA_PATTERN.search(response_text)
+    if not match:
+        print(response_text)
     return json.loads(match.group(1))
 
 
@@ -69,4 +76,32 @@ def parse_checkpoint_data(data: dict):
 
 def parse_quiz_data(response_text):
     soup = BeautifulSoup(response_text, 'html5lib')
-    return response_text
+    all_questions = list()
+    while True:
+        div_timu = soup.find('div', {'class': 'TiMu'})
+        if not div_timu:
+            break
+
+        all_questions.append(extract_question(div_timu))
+
+        soup = div_timu
+
+    return all_questions
+
+
+def extract_question(div_TiMu):
+    text_div, choices_div = div_TiMu.find_all('div', {'class': 'clearfix'})[1:3]
+    question_text = text_div.text
+    choices_item = choices_div.find_all('li')
+    question_id = choices_item[0].input['name']
+    choice_values = [c.input['value'] for c in choices_item]
+    print(choice_values)
+    try:
+        choice_text = [c.a.text for c in choices_item]
+    except AttributeError:
+        choice_text = [''] * len(choice_values)
+    return {
+        'text': question_text,
+        'id': question_id,
+        'choices': list(zip(choice_values, choice_text))
+    }

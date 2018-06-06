@@ -113,9 +113,9 @@ class EryaSession:
             'isdrag': '3',
             'enc': get_log_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
-        url = 'http://mooc1-1.chaoxing.com/multimedia/log/{}'.format(dtoken)
-
-        return self.session.get(url, params=params, headers=HEADERS).json()
+        url = 'https://mooc1-1.chaoxing.com/multimedia/log/{}'.format(dtoken)
+        response = self.session.get(url, params=params, headers=HEADERS)
+        return response.json()
 
     def answer_checkpoint(self, resource_id, answers: list):
         resource_id = int(resource_id)
