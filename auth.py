@@ -12,11 +12,12 @@ CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code?{ts}'
 ERYA_S = 'a7b6c438cbba8ac6bdd24a7c60844b93'  # copied from capture, what is that?
 
 
-def validate_cookies(cookies: dict):
+def validate_cookies(cookies: dict, init_url):
     session = requests.session()
     session.cookies.update(cookies)
     session.headers.update(HEADERS)
-    if session.get('http://i.mooc.chaoxing.com/space/index.shtml', allow_redirects=False).status_code == 200:
+    response = session.get(init_url, allow_redirects=False)
+    if response.status_code == 200:
         return True
     return False
 

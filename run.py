@@ -7,13 +7,15 @@ import os
 from erya import EryaSession
 import sys
 
+
 def main():
     with open('config.json') as f:
         config = json.load(f)
     if os.path.isfile('cookies.json'):
         with open('cookies.json') as f:
             cookies = json.load(f)
-        if validate_cookies(cookies):
+        if validate_cookies(cookies, config['init_url']):
+            print('Session loaded from file')
             esession = EryaSession(cookies)
         else:
             print('Cookies invalid')
@@ -27,11 +29,16 @@ def main():
     chapter_list = esession.get_course_chapter_list(params['courseId'], params['clazzid'], params['enc'])
     with open('chapters.json', 'w') as f:
         json.dump(chapter_list, f, indent=2, ensure_ascii=False)
+    all_chapter_count = len(chapter_list)
+    passed_chapter_count = len([0 for c in chapter_list if c[4]])
+    print('Total {} chapters, {} passed, {} remaining'.format(all_chapter_count, passed_chapter_count,
+                                                              all_chapter_count - passed_chapter_count))
+
     for chapter in chapter_list:
-        time.sleep(1)
         course_id, class_id, chapter_id, name, passed = chapter
         if passed == 1:
             continue
+        time.sleep(1)
         print('Entering chapter {}: {}'.format(chapter_id, name))
         chapter_tab = esession.get_chapter_tabs(course_id, class_id, chapter_id)
         time.sleep(1)
@@ -87,11 +94,14 @@ def main():
         job_id = attachment_data_quiz['jobid']
         enc = attachment_data_quiz['enc']
         time.sleep(1)
-        quiz_data = esession.get_quiz_data(work_id, job_id, chapter_id, class_id, enc, utenc, course_id)
-        with open('test.txt', 'w', encoding='UTF-8') as f:
-            json.dump(quiz_data, f, indent=2, ensure_ascii=False)
+        quiz_data, quiz_passed = esession.get_quiz_data(work_id, job_id, chapter_id, class_id, enc, utenc, course_id)
+        if quiz_passed:
+            print('Quiz already passed')
+        else:
+            print('Please do the quiz manually, press enter to resume')
+            input()
         print('Quiz done')
-
+    print('Exiting')
 
 
 if __name__ == '__main__':

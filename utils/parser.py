@@ -74,7 +74,7 @@ def parse_checkpoint_data(data: dict):
     return question_data['resourceId'], question_data['startTime'], answers
 
 
-def parse_quiz_data(response_text):
+def parse_quiz_data(response_text, hw_passed):
     soup = BeautifulSoup(response_text, 'html5lib')
     all_questions = list()
     while True:
@@ -86,7 +86,7 @@ def parse_quiz_data(response_text):
 
         soup = div_timu
 
-    return all_questions
+    return all_questions, hw_passed
 
 
 def extract_question(div_TiMu):
@@ -96,10 +96,11 @@ def extract_question(div_TiMu):
     question_id = choices_item[0].input['name']
     choice_values = [c.input['value'] for c in choices_item]
     print(choice_values)
-    try:
+    if choice_values == ['true', 'false']:
+        choice_text = ['True', 'False']
+    else:
         choice_text = [c.a.text for c in choices_item]
-    except AttributeError:
-        choice_text = [''] * len(choice_values)
+
     return {
         'text': question_text,
         'id': question_id,

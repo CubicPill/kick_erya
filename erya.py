@@ -93,7 +93,14 @@ class EryaSession:
         }
         url = 'https://mooc1-1.chaoxing.com/api/work'
         response = self.session.get(url, params=params)
-        return parse_quiz_data(response.text)
+        if 'doHomeWorkNew' in response.url:
+            hw_passed = False
+        elif 'selectWorkQuestionYiPiYue' in response.url:
+            hw_passed = True
+        else:
+            raise ValueError('Unrecognized URL {}'.format(response.url.split('?')))
+
+        return parse_quiz_data(response.text, hw_passed)
 
     def request_log(self, dtoken, duration, user_id, job_id, object_id, class_id, playing_time, chapter_id):
         duration, user_id, job_id, class_id, playing_time, chapter_id = \
