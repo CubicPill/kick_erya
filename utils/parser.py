@@ -16,7 +16,7 @@ CHAPTER_PATTERN = re.compile(
 CARD_DATA_PATTERN = re.compile('mArg = ({.+});')
 UTENC_PATTERN = re.compile('var utEnc="([0-9a-z]+)";')
 __all__ = ['parse_chapter_tabs', 'parse_params', 'parse_chapter_detail', 'parse_chapter_list', 'parse_checkpoint_data',
-           'parse_quiz_data']
+           'parse_quiz_data', 'parse_utenc']
 
 
 def parse_params(url):
@@ -77,6 +77,8 @@ def parse_checkpoint_data(data: dict):
 def parse_quiz_data(response_text, hw_passed):
     soup = BeautifulSoup(response_text, 'html5lib')
     all_questions = list()
+    if hw_passed:
+        return [], hw_passed
     while True:
         div_timu = soup.find('div', {'class': 'TiMu'})
         if not div_timu:

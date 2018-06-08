@@ -6,6 +6,10 @@ from utils.parser import *
 ERYA_V = '20160407'
 
 
+class NotLoggedIn(Exception):
+    pass
+
+
 class EryaSession:
     def __init__(self, cookies: dict):
         self.session = requests.session()
@@ -15,6 +19,21 @@ class EryaSession:
     @property
     def cookies(self):
         return self.session.cookies.get_dict()
+
+    def _request(self, method, url, **kwargs):
+        """
+        used for normal requests after logging in
+        :param method:
+        :param url:
+        :param params:
+        :param data:
+        :param kwargs:
+        :return:
+        """
+        response = self.session.request(method, url, **kwargs)
+        if 'http://passport2.chaoxing.com/login' in response.url:
+            raise NotLoggedIn
+        return response
 
     def get_course_chapter_list(self, course_id, class_id, enc):
         """
@@ -30,7 +49,7 @@ class EryaSession:
             'clazzid': class_id,
             'enc': enc
         }
-        response = self.session.get('http://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data, headers=HEADERS)
+        response = self._request('GET', 'http://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data)
         chapter_list = parse_chapter_list(response.text)
         return chapter_list
 
@@ -40,8 +59,7 @@ class EryaSession:
             'clazzid': class_id,
             'chapterId': chapter_id
         }
-        response = self.session.post('http://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data,
-                                     headers=HEADERS)
+        response = self._request('POST', 'http://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data)
         return parse_chapter_tabs(response.text)
 
     def get_card_detail(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
@@ -53,7 +71,7 @@ class EryaSession:
             'num': num,
             'v': ERYA_V + '-1'  # currently is '20160407-1'
         }
-        response = self.session.get(url, params=params, headers=HEADERS)
+        response = self._request('GET', url, params=params)
         return parse_chapter_detail(response.text)
 
     def get_ananas_data(self, object_id, school_id):
@@ -62,12 +80,13 @@ class EryaSession:
             'k': school_id,
             '_dc': int(time.time() * 1000)
         }
-        return self.session.get(url, params=params, headers=HEADERS).json()
+        return self._request('GET', url, params=params, headers=HEADERS).json()
 
     def get_checkpoint_data(self, mid):
         url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
             mid=mid)
-        return parse_checkpoint_data(self.session.get(url, headers=HEADERS).json())
+        response = self._request('GET', url, headers=HEADERS)
+        return parse_checkpoint_data(response.json())
 
     def get_utenc(self, chapter_id, course_id, class_id, enc):
         params = {
@@ -76,6 +95,10 @@ class EryaSession:
             'clazzid': class_id,
             'enc': enc
         }
+        url = 'https://mooc1-1.chaoxing.com/mycourse/studentcourse'
+        response = self._request('GET', url, params=params)
+        print(response.text)
+        return parse_utenc(response.text)
 
     def get_quiz_data(self, work_id, job_id, chapter_id, class_id, enc, utenc, course_id):
         params = {
@@ -92,7 +115,7 @@ class EryaSession:
             'courseid': course_id,
         }
         url = 'https://mooc1-1.chaoxing.com/api/work'
-        response = self.session.get(url, params=params)
+        response = self._request('GET', url, params=params)
         if 'doHomeWorkNew' in response.url:
             hw_passed = False
         elif 'selectWorkQuestionYiPiYue' in response.url:
@@ -121,7 +144,7 @@ class EryaSession:
             'enc': get_log_enc(class_id, user_id, job_id, object_id, playing_time, duration)
         }
         url = 'https://mooc1-1.chaoxing.com/multimedia/log/{}'.format(dtoken)
-        response = self.session.get(url, params=params, headers=HEADERS)
+        response = self._request('GET', url, params=params)
         return response.json()
 
     def answer_checkpoint(self, resource_id, answers: list):
@@ -131,7 +154,7 @@ class EryaSession:
             'resourceid': resource_id,
             'answer': "'" + ''.join(answers) + "'"
         }
-        return self.session.get(url, params=params, headers=HEADERS).json()
+        return self._request('GET', url, params=params).json()
 
     def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
                         t: int = int(time.time())):
@@ -151,4 +174,4 @@ class EryaSession:
             'referer': referer,
             't': t
         }
-        self.session.get('http://passport2.chaoxing.com/api/monitor', data=data)
+        self._request('GET', 'http://passport2.chaoxing.com/api/monitor', data=data)
