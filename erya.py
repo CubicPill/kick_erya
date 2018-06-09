@@ -31,7 +31,7 @@ class EryaSession:
         :return:
         """
         response = self.session.request(method, url, **kwargs)
-        if 'http://passport2.chaoxing.com/login' in response.url:
+        if 'passport2.chaoxing.com/login' in response.url:
             raise NotLoggedIn
         return response
 
@@ -49,7 +49,7 @@ class EryaSession:
             'clazzid': class_id,
             'enc': enc
         }
-        response = self._request('GET', 'http://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data)
+        response = self._request('GET', 'https://mooc1-1.chaoxing.com/mycourse/studentcourse', params=data)
         chapter_list = parse_chapter_list(response.text)
         return chapter_list
 
@@ -59,11 +59,11 @@ class EryaSession:
             'clazzid': class_id,
             'chapterId': chapter_id
         }
-        response = self._request('POST', 'http://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data)
+        response = self._request('POST', 'https://mooc1-1.chaoxing.com/mycourse/studentstudyAjax', data=data)
         return parse_chapter_tabs(response.text)
 
     def get_card_detail(self, class_id, course_id, chapter_id, num=0, v=ERYA_V):
-        url = 'http://mooc1-1.chaoxing.com/knowledge/cards'
+        url = 'https://mooc1-1.chaoxing.com/knowledge/cards'
         params = {
             'clazzid': class_id,
             'courseid': course_id,
@@ -75,7 +75,7 @@ class EryaSession:
         return parse_chapter_detail(response.text)
 
     def get_ananas_data(self, object_id, school_id):
-        url = 'http://mooc1-1.chaoxing.com/ananas/status/{}'.format(object_id)
+        url = 'https://mooc1-1.chaoxing.com/ananas/status/{}'.format(object_id)
         params = {
             'k': school_id,
             '_dc': int(time.time() * 1000)
@@ -83,7 +83,7 @@ class EryaSession:
         return self._request('GET', url, params=params, headers=HEADERS).json()
 
     def get_checkpoint_data(self, mid):
-        url = 'http://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
+        url = 'https://mooc1-1.chaoxing.com/richvideo/initdatawithviewer?&start=undefined&mid={mid}'.format(
             mid=mid)
         response = self._request('GET', url, headers=HEADERS)
         return parse_checkpoint_data(response.json())
@@ -95,9 +95,8 @@ class EryaSession:
             'clazzid': class_id,
             'enc': enc
         }
-        url = 'https://mooc1-1.chaoxing.com/mycourse/studentcourse'
+        url = 'https://mooc1-1.chaoxing.com/mycourse/studentstudy'
         response = self._request('GET', url, params=params)
-        print(response.text)
         return parse_utenc(response.text)
 
     def get_quiz_data(self, work_id, job_id, chapter_id, class_id, enc, utenc, course_id):
@@ -156,7 +155,7 @@ class EryaSession:
         }
         return self._request('GET', url, params=params).json()
 
-    def request_monitor(self, version: str, jsoncallback: str, referer='http://i.mooc.chaoxing.com',
+    def request_monitor(self, version: str, jsoncallback: str, referer='https://i.mooc.chaoxing.com',
                         t: int = int(time.time())):
         """
         the periodic request to detect multi client login
@@ -174,4 +173,4 @@ class EryaSession:
             'referer': referer,
             't': t
         }
-        self._request('GET', 'http://passport2.chaoxing.com/api/monitor', data=data)
+        self._request('GET', 'https://passport2.chaoxing.com/api/monitor', data=data)
