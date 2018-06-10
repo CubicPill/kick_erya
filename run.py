@@ -33,14 +33,11 @@ def main():
     passed_chapter_count = len([0 for c in chapter_list if c[4]])
     print('Total {} chapters, {} passed, {} remaining'.format(all_chapter_count, passed_chapter_count,
                                                               all_chapter_count - passed_chapter_count))
-    _p = 0
+    chapter_list = [c for c in chapter_list if not c[4]]
     for chapter in chapter_list:
 
         course_id, class_id, chapter_id, name, passed = chapter
         if passed == 1:
-            continue
-        if _p > 0:
-            _p -= 1
             continue
         time.sleep(1)
         print('Entering chapter {}: {}'.format(chapter_id, name))
@@ -90,23 +87,26 @@ def main():
                 current_time += interval
             esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
             print('Done playing video')
-        # do quiz
+        if config['do_quiz']:
+            # do quiz
+            utenc = esession.get_utenc(chapter_id, course_id, class_id, params['enc'])
+            time.sleep(1)
+            card_detail_quiz = esession.get_card_detail(class_id, course_id, chapter_id, num=chapter_tab['quiz'])
+            attachment_data_quiz = card_detail_quiz['attachments'][0]
+            work_id = attachment_data_quiz['property']['workid']
+            job_id = attachment_data_quiz['jobid']
+            enc = attachment_data_quiz['enc']
+            time.sleep(1)
+            quiz_data, quiz_passed = esession.get_quiz_data(work_id, job_id, chapter_id, class_id, enc, utenc,
+                                                            course_id)
+            if quiz_passed:
+                print('Quiz already passed')
+            else:
+                print('Please do the quiz manually, press enter to resume')
+                input()
+            print('Quiz done')
         time.sleep(2)
-        # utenc = esession.get_utenc(chapter_id, course_id, class_id, params['enc'])
-        # time.sleep(1)
-        # card_detail_quiz = esession.get_card_detail(class_id, course_id, chapter_id, num=chapter_tab['quiz'])
-        # attachment_data_quiz = card_detail_quiz['attachments'][0]
-        # work_id = attachment_data_quiz['property']['workid']
-        # job_id = attachment_data_quiz['jobid']
-        # enc = attachment_data_quiz['enc']
-        # time.sleep(1)
-        # quiz_data, quiz_passed = esession.get_quiz_data(work_id, job_id, chapter_id, class_id, enc, utenc, course_id)
-        # if quiz_passed:
-        #     print('Quiz already passed')
-        # else:
-        #     print('Please do the quiz manually, press enter to resume')
-        #     #input()
-        # print('Quiz done')
+
     print('Exiting')
 
 
