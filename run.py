@@ -43,8 +43,9 @@ def main():
         print('Entering chapter {}: {}'.format(chapter_id, name))
         chapter_tabs = esession.get_chapter_tabs(course_id, class_id, chapter_id)
         time.sleep(1)
-        video_card_index = chapter_tabs.index('视频')
-        if video_card_index == -1:
+        try:
+            video_card_index = chapter_tabs.index('视频')
+        except ValueError:
             print('未找到视频标签页，跳过视频播放')
         else:
 
@@ -95,8 +96,9 @@ def main():
                 print('Done playing video')
         if config['do_quiz']:
             # do quiz
-            quiz_card_index = chapter_tabs.index('章节测验')
-            if quiz_card_index == -1:
+            try:
+                quiz_card_index = chapter_tabs.index('章节测验')
+            except ValueError:
                 print('章节测验标签页未找到，跳过')
             else:
                 utenc = esession.get_utenc(chapter_id, course_id, class_id, params['enc'])
@@ -110,14 +112,15 @@ def main():
                 quiz_data, quiz_passed = esession.get_quiz_data(work_id, job_id, chapter_id, class_id, enc, utenc,
                                                                 course_id)
                 if quiz_passed:
-                    print('Quiz already passed')
+                    print('测验已完成，跳过')
                 else:
                     print('Please do the quiz manually, press enter to resume')
+                    # TODO: parse page
                     input()
-                print('Quiz done')
+                print('章节测验完成')
         time.sleep(2)
 
-    print('Exiting')
+    print('全部任务点完成，退出...')
 
 
 if __name__ == '__main__':
