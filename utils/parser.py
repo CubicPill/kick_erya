@@ -40,21 +40,10 @@ def parse_chapter_list(response_text):
 
 def parse_chapter_tabs(response_text):
     soup = BeautifulSoup(response_text, 'html5lib')
+    ret = list()
+    for span in soup.find_all('span'):
+        ret.append(span['title'])
 
-    ret = {
-        'video': -1,
-        'quiz': -1
-    }
-    for i, span in enumerate(soup.find_all('span')):
-        if span['title'] == '视频':
-            ret['video'] = i
-        elif span['title'] == '章节测验':
-            ret['quiz'] = i
-    try:
-        assert -1 not in list(ret.values())
-    except AssertionError as e:
-        print(response_text)
-        raise e
     return ret
 
 
