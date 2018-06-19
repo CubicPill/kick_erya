@@ -3,7 +3,7 @@ import time
 from utils import get_log_enc, HEADERS
 from utils.parser import *
 
-ERYA_V = '20160407'
+ERYA_V = '20160407-1'
 
 
 class NotLoggedIn(Exception):
@@ -69,7 +69,7 @@ class EryaSession:
             'courseid': course_id,
             'knowledgeid': chapter_id,
             'num': num,
-            'v': ERYA_V + '-1'  # currently is '20160407-1'
+            'v': v  # currently is '20160407-1'
         }
         response = self._request('GET', url, params=params)
         return parse_chapter_detail(response.text)

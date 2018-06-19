@@ -80,8 +80,8 @@ def parse_quiz_data(response_text, hw_passed):
     return all_questions, hw_passed
 
 
-def extract_question(div_TiMu):
-    text_div, choices_div = div_TiMu.find_all('div', {'class': 'clearfix'})[1:3]
+def extract_question(div_list):
+    text_div, choices_div = div_list.find_all('div', {'class': 'clearfix'})[1:3]
     question_text = text_div.text
     choices_item = choices_div.find_all('li')
     question_id = choices_item[0].input['name']

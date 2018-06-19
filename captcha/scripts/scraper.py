@@ -13,7 +13,7 @@ def main():
         try:
             with open('./data/{}.jpg'.format(filename), 'wb') as f:
                 f.write(requests.get(CHPTCHA_URL).content)
-        except:
+        except requests.RequestException:
             pass
 
 

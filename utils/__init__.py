@@ -22,23 +22,23 @@ HEADERS = {
 }
 
 
-def get_log_enc(clazzId, user_id, job_id, objectId, playingTime, duration) -> str:
+def get_log_enc(class_id, user_id, job_id, object_id, playing_time, duration) -> str:
     """
     get the enc field in log requests
     restored from decompiling the flash player
     :rtype: str
-    :param clazzId:
+    :param class_id:
     :param user_id:
     :param job_id:
-    :param objectId:
-    :param playingTime:
+    :param object_id:
+    :param playing_time:
     :param duration:
     :return: enc string
     """
-    clazzId, user_id, job_id, playingTime, duration = \
-        list(map(int, [clazzId, user_id, job_id, playingTime, duration]))
+    class_id, user_id, job_id, playing_time, duration = \
+        list(map(int, [class_id, user_id, job_id, playing_time, duration]))
     _string = '[{cid}][{uid}][{jid}][{oid}][{pt}][{salt}][{d}][{ct}]' \
-        .format(cid=clazzId, uid=user_id, jid=job_id, oid=objectId, pt=playingTime * 1000,
+        .format(cid=class_id, uid=user_id, jid=job_id, oid=object_id, pt=playing_time * 1000,
                 d=duration * 1000, ct='0_%d' % duration, salt=SALT)
     md5 = hashlib.md5()
     md5.update(_string.encode())

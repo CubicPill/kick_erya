@@ -2,7 +2,6 @@ from PIL import Image
 import random
 import math
 from copy import deepcopy
-import hashlib
 
 DIST_INF = 442  # distance from (0,0,0) to (255,255,255), rounded up
 

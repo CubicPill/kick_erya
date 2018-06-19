@@ -19,9 +19,9 @@ def main():
             esession = EryaSession(cookies)
         else:
             print('Cookies 无效, 重新登陆')
-            esession = EryaAuth(username=config['username'], password=config['password'])
+            esession = EryaAuth(username=config['username'], password=config['password'], school_id=config['school_id'])
     else:
-        esession = EryaAuth(username=config['username'], password=config['password'])
+        esession = EryaAuth(username=config['username'], password=config['password'], school_id=config['school_id'])
     with open('cookies.json', 'w') as f:
         json.dump(esession.cookies, f)
     params = parse_params(config['init_url'])
@@ -66,10 +66,9 @@ def main():
                 dtoken = ananas_data['dtoken']
                 resource_id, checkpoint_time, answers = esession.get_checkpoint_data(mid)
                 time.sleep(1)
-                timer = Timer(checkpoint_time, lambda: print('视频任务点已完成'
-                                                             if esession.answer_checkpoint(resource_id, answers)[
-                    'isRight']
-                                                             else '视频任务点出错'))
+                timer = Timer(checkpoint_time,
+                              lambda: print('视频任务点已完成' if esession.answer_checkpoint(resource_id, answers)['isRight']
+                                            else '视频任务点出错'))
                 timer.start()
                 current_time = 0
                 print('视频长度: {} s'.format(duration))

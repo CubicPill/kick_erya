@@ -5,8 +5,6 @@ from erya import EryaSession
 import time
 from utils import HEADERS
 
-FID = 864
-
 LOGIN_URL = 'http://passport2.chaoxing.com/login?fid={fid}&refer=http://i.mooc.chaoxing.com/space/index.shtml'
 CAPTCHA_URL = 'http://passport2.chaoxing.com/num/code?{ts}'
 ERYA_S = 'a7b6c438cbba8ac6bdd24a7c60844b93'  # copied from capture, what is that?
@@ -22,30 +20,22 @@ def validate_cookies(cookies: dict, init_url):
     return False
 
 
-def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dict:
+def erya_login(username, password, school_id) -> dict:
     session = requests.session()
-    session.get(LOGIN_URL.format(fid=fid))
+    session.get(LOGIN_URL.format(fid=school_id))
     captcha = ''
     while not captcha:
         captcha_image_content = session.get(CAPTCHA_URL.format(ts=int(time.time() * 1000))).content
         captcha_image = Image.open(BytesIO(captcha_image_content))
-        if captcha_mode == 1:
-            # auto recognition
 
-            # captcha recognition
-            raise NotImplementedError
-        elif captcha_mode == 0:
-            # enter by user
+        captcha_image.show()
+        captcha = input('Enter code (Press enter to get a new code): ')
 
-            captcha_image.show()
-            captcha = input('Enter code (Press enter to get a new code): ')
-        else:
-            raise ValueError('Unrecognized captcha mode %d' % captcha_mode)
     data = {
         'uname': username,
         'password': password,
         'numcode': captcha,
-        'fid': fid,
+        'fid': school_id,
         'fidName': '',
         'vercode': '',
         'refer_0x001': 'http%253A%252F%252Fi.mooc.chaoxing.com%252Fspace%252Findex.shtml',
@@ -73,6 +63,6 @@ def erya_login(username, password, captcha_mode: int = 0, fid: int = FID) -> dic
 
 
 class EryaAuth(EryaSession):
-    def __init__(self, username, password):
-        cookies = erya_login(username, password)
+    def __init__(self, username, password, school_id):
+        cookies = erya_login(username, password, school_id)
         EryaSession.__init__(self, cookies)
