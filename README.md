@@ -12,7 +12,7 @@
 以深圳大学为例
 
 首先打开选择学校页面, 找到自己的学校
-![](https://raw.githubusercontent.com/CubicPill/kick_erya/master/images/school-id-1.png
+![](https://raw.githubusercontent.com/CubicPill/kick_erya/master/images/school-id-1.png)
 
 右键点击超链接, 弹出菜单内选择 "审查元素" 选项 (Chrome 浏览器, 其他浏览器可能稍有不同)
 ![](https://raw.githubusercontent.com/CubicPill/kick_erya/master/images/school-id-2.png)
