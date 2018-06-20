@@ -174,3 +174,14 @@ class EryaSession:
             't': t
         }
         self._request('GET', 'https://passport2.chaoxing.com/api/monitor', data=data)
+
+    def request_reading_log(self, _from, course_id, chapter_id, height, h):
+        url = 'https://mooc1-1.chaoxing.com/multimedia/readlog'
+        params = {
+            '_from_': _from,
+            'courseid': course_id,
+            'chapterid': chapter_id,
+            'height': height,
+            'h': h
+        }
+        self._request('GET', url, params=params)

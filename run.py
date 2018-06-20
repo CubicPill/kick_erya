@@ -93,6 +93,12 @@ def main():
                     current_time += interval
                 esession.request_log(dtoken, duration, user_id, job_id, object_id, class_id, current_time, chapter_id)
                 print('视频播放完成！')
+        try:
+            read_card_index = chapter_tabs.index('阅读')
+        except ValueError:
+            pass
+        else:
+            pass
         if config['do_quiz']:
             # do quiz
             try:
