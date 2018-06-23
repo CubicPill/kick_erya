@@ -3,6 +3,12 @@
 
 ## Usage
 
+### 安装依赖
+
+```
+pip install -r requirements.txt
+```
+
 ### config.json 设置
 在 ```config_sample.json``` 填入账号和密码, ```init_url``` 填入要刷的课程主页任意一个章节的 url
 ```school_id``` 请填入自己学校对应的 id (获取方式见下方)
